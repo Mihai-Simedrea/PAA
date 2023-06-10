@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 // Definim strctura de tip arbore
 typedef struct tree_node {
@@ -30,6 +31,9 @@ tree_node* create_tree_node(int value) {
 
 // Definim functia pentru a parcurge in preordine (RSD)
 void print_preorder(tree_node* root) {
+    // root: tree_node* - radacina de la care incepem printarea
+    // return: void
+
     // daca radacina e nula, inseamna ca nodul nu exista, deci iesim din recursivitate
     if (root == NULL) {
         return;
@@ -37,7 +41,7 @@ void print_preorder(tree_node* root) {
 
     // altfel, radacina nu e nula, putem sa o printam
 
-    printf("%d ", root->value);
+    (void)printf("%d ", root->value);
 
     // din moment ce nu e nula, noi cum vrem sa parcurgem arborele?
     // acum suntem la RADACINA, deci, vom merge mai intai in partea stanga
@@ -50,45 +54,77 @@ void print_preorder(tree_node* root) {
     print_preorder(root->right);
 }
 
+
+// Definim functia de a insera un nod in arborele binar
+void insert_in_tree(tree_node** root, tree_node* node) {
+    // root: tree_node** - radacina la care o sa inseram
+    // node: tree_node* - nodul pe care o sa il inseram
+    // return: void
+
+    // avem pointer la pointer deoarece dorim sa modificam adresa radacinii prin interiorul functiei
+
+    // verificam daca radacina e nula
+    if (*root == NULL) {
+
+        // daca e nula, atribuim nodul trimis ca parametru
+        *root = node;
+    }
+
+    // daca nodul trimis ca parametru exista deja in arbore, nu facem nimic
+    if ((*root)->value == node->value) {
+        return;
+    }
+
+    // daca valoarea parametrului este mai mica decat valorea radacinii, inseram in fiul din stanga
+    if ((*root)->value > node->value) {
+        insert_in_tree(&(*root)->left, node);
+    } else {
+        // daca valoarea parametrului este mai mare decat valorea radacinii, inseram in fiul din dreapta
+        insert_in_tree(&(*root)->right, node);
+    }
+}
+
+// Definim o functie de cautare a unei valori in arbore
+bool find_value_in_tree(tree_node* root, int value) {
+    // node: tree_node* - radacina
+    // return: bool - daca am gasit sau nu valoarea
+
+    // daca radacina e nula, returnam fals
+    if (root == NULL) {
+        return false;
+    }
+
+    // daca valoarea radacinii e egala cu valoarea trimisa ca parametru inseamna ca am gasit valorea respectiva in arbore
+    if (root->value == value) {
+        return true;
+    }
+
+    // daca valorea radacinii e mai mare decat valoarea trimisa ca parametru, o cautam in arborele din stanga
+    if (root->value > value) {
+        return find_value_in_tree(root->left, value);
+    } else { 
+        // daca valorea radacinii e mai mica decat valoarea trimisa ca parametru, o cautam in arborele din dreapta
+        return find_value_in_tree(root->right, value);
+    }
+}
+
 int main(void) {
-    // Cream 5 noduri pentru test
-    tree_node* n1 = create_tree_node(1);
-    tree_node* n2 = create_tree_node(2);
-    tree_node* n3 = create_tree_node(3);
-    tree_node* n4 = create_tree_node(4);
-    tree_node* n5 = create_tree_node(5);
+    tree_node *root = NULL;
 
-    // acum, nodurile nu sunt legate intre ele, sunt doar alocate in HEAP si that's all
+    insert_in_tree(&root, create_tree_node(5));
+    insert_in_tree(&root, create_tree_node(2));
+    insert_in_tree(&root, create_tree_node(3));
+    insert_in_tree(&root, create_tree_node(7));
+    insert_in_tree(&root, create_tree_node(10));
+    insert_in_tree(&root, create_tree_node(9));
+    insert_in_tree(&root, create_tree_node(11));
+    insert_in_tree(&root, create_tree_node(6));
 
-    // sa zicem ca vrem urmatoarea legatura
-    /*
-    
-        n1 - stanga: n2, dreapta: n3
-        n3 - stanga: n4, dreapta: n5
+    print_preorder(root);
+    printf("\n");
 
-        va arata ceva de genul
+    printf("%d ", find_value_in_tree(root, 5));
 
-                n1
-                /\
-               /  \
-             n2    n3
-                   /\
-                  /  \
-                n4    n5
-
-        e un arbore binar cu radacina: n1
-    
-    */
-
-    n1->left = n2;
-    n1->right = n3;
-    n3->left = n4;
-    n3->right = n5;
-
-    // acum ca am legat nodurile, trebuie sa le parcurgem
-    // sunt mai multe tipuri de parcurgere, hai sa parcurgem in PREORDINE, adica: incepem cu radacina, dupa mergem la fiul din stanga dupa dreapta
-
-    print_preorder(n1);
 
     return 0;
 }
